@@ -9,8 +9,8 @@ print(vs.grabbed)
 while True:
     print(vs.grabbed)
     frame = vs.read()
+    frame = cv2.resize(frame, (1200, 700))
     cv2.imshow('webcam', frame)
-    time.sleep(1)
     if cv2.waitKey(1) == 27:
         break
 
