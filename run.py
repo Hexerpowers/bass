@@ -10,7 +10,7 @@ detect = Detect(config).start()
 
 print('Init finished')
 
-if bool(int(config["bass"]["echo_timecodes"])):
+if bool(int(config["bass"]["use_timecodes"])):
     print("--- took %s seconds ---" % (time.time() - start_time))
     print()
 detect.enable()

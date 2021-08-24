@@ -15,6 +15,7 @@ class Detect:
         self.thread = Thread(target=self.detect_data, daemon=False, args=())
         self.started = False
         self.enabled = False
+
         if not os.path.isfile(config["yolo"]["model_src"]):
             print('Model file not found')
             sys.exit(0)
@@ -46,20 +47,28 @@ class Detect:
                 print('Video file not found or busy')
                 sys.exit(0)
             frame = self.vs.read()
+
         self.net = cv.dnn_DetectionModel(config["yolo"]["cfg_src"], config["yolo"]["model_src"])
         self.net.setInputSize(int(config["yolo"]["size"]), int(config["yolo"]["size"]))
         self.net.setInputScale(1.0 / int(config["yolo"]["scale"]))
         self.net.setInputSwapRB(True)
         print('DNN ready;')
-        self.network = MVL().start()
-        print('Network ready;')
+
+        if bool(int(config["bass"]["use_mavlink"])):
+            self.network = MVL(config).start()
+            self.use_network = True
+            print('Network ready;')
+        else:
+            self.use_network = False
+
+        self.use_timecodes = bool(int(config["bass"]["use_timecodes"]))
         self.config = config
 
     def detect_data(self):
         while self.started:
             while self.enabled:
                 while True:
-                    if bool(int(self.config["bass"]["echo_timecodes"])):
+                    if self.use_timecodes:
                         start_time = time.time()
                     if self.test_image:
                         frame = cv.imread(self.image_path)
@@ -71,7 +80,6 @@ class Detect:
                     classes, confidences, boxes = self.net.detect(frame, confThreshold=0.4, nmsThreshold=0.4)
 
                     if len(boxes) > 0:
-                        # self.network.send_mvl('New person detected')
                         # next lines only for desktop imshow
                         for classId, confidence, box in zip(classes.flatten(), confidences.flatten(), boxes):
                             label = '%.2f' % confidence
@@ -79,6 +87,8 @@ class Detect:
                             label_size, base_line = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
                             left, top, width, height = box
                             top = max(top, label_size[1])
+                            if self.use_network:
+                                self.network.send_mvl(10, 10)
                             cv.rectangle(frame, box, color=(0, 255, 0), thickness=3)
                             cv.rectangle(frame, (left, top - label_size[1]), (left + label_size[0], top + base_line),
                                          (255, 255, 255),
@@ -88,7 +98,7 @@ class Detect:
                     frame = cv.resize(frame, (1200, 700))
                     cv.imshow('Detect', frame)
 
-                    if bool(int(self.config["bass"]["echo_timecodes"])):
+                    if self.use_timecodes:
                         print("--- %s seconds ---" % (time.time() - start_time))
 
                     if cv.waitKey(27) == 27:

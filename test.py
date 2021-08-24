@@ -2,7 +2,7 @@ import time
 
 import cv2
 
-from WebcamVideoStream import WebcamVideoStream
+from modules.WebcamVideoStream import WebcamVideoStream
 
 vs = WebcamVideoStream('../test/01.mp4').start()
 print(vs.grabbed)
