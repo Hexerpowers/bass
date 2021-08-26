@@ -62,6 +62,7 @@ class Detect:
             self.use_network = False
 
         self.use_timecodes = bool(int(config["bass"]["use_timecodes"]))
+        self.use_display = bool(int(self.config["bass"]["use_display"]))
         self.config = config
 
     def detect_data(self):
@@ -82,29 +83,32 @@ class Detect:
                     if len(boxes) > 0:
                         # next lines only for desktop imshow
                         for classId, confidence, box in zip(classes.flatten(), confidences.flatten(), boxes):
-                            label = '%.2f' % confidence
-                            label = '%s: %s' % (self.class_names[classId], label)
-                            label_size, base_line = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-                            left, top, width, height = box
-                            top = max(top, label_size[1])
                             if self.use_network:
                                 self.network.send_mvl(10, 10)
-                            cv.rectangle(frame, box, color=(0, 255, 0), thickness=3)
-                            cv.rectangle(frame, (left, top - label_size[1]), (left + label_size[0], top + base_line),
-                                         (255, 255, 255),
-                                         cv.FILLED)
-                            cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+                            if self.use_display:
+                                label = '%.2f' % confidence
+                                label = '%s: %s' % (self.class_names[classId], label)
+                                label_size, base_line = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+                                left, top, width, height = box
+                                top = max(top, label_size[1])
 
-                    frame = cv.resize(frame, (1200, 700))
-                    cv.imshow('Detect', frame)
+                                cv.rectangle(frame, box, color=(0, 255, 0), thickness=3)
+                                cv.rectangle(frame, (left, top - label_size[1]), (left + label_size[0], top + base_line),
+                                             (255, 255, 255),
+                                             cv.FILLED)
+                                cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+                    if self.use_display:
+                        frame = cv.resize(frame, (1200, 700))
+                        cv.imshow('Detect', frame)
 
                     if self.use_timecodes:
                         print("--- %s seconds ---" % (time.time() - start_time))
 
-                    if cv.waitKey(27) == 27:
-                        cv.destroyAllWindows()
-                        self.enabled = False
-                        sys.exit(0)
+                    if self.use_display:
+                        if cv.waitKey(27) == 27:
+                            cv.destroyAllWindows()
+                            self.enabled = False
+                            sys.exit(0)
 
     def start(self):
         if self.started:
