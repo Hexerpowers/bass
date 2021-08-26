@@ -81,8 +81,8 @@ class Detect:
                     classes, confidences, boxes = self.net.detect(frame, confThreshold=0.4, nmsThreshold=0.4)
 
                     if len(boxes) > 0:
-                        # next lines only for desktop imshow
                         for classId, confidence, box in zip(classes.flatten(), confidences.flatten(), boxes):
+                            # TODO: перенести определение расстояния и угла из теста
                             if self.use_network:
                                 self.network.send_mvl(10, 10)
                             if self.use_display:
