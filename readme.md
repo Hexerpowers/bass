@@ -11,9 +11,16 @@ sudo apt upgrade
 sudo apt install libopencv-dev
 sudo pip3 install opencv-python
 sudo pip3 install pymavlink
+sudo curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
 ```
 
 а так же переменная среды MAVLINK20=1
+
+## Для установки используем (обязательно!):
+```shell
+git lfs install
+git clone https://github.com/Hexerpowers/bass
+```
 
 ## Для запуска используем
 ```shell
