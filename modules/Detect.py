@@ -62,7 +62,7 @@ class Detect:
             self.use_network = False
 
         self.use_timecodes = bool(int(config["bass"]["use_timecodes"]))
-        self.use_display = bool(int(self.config["bass"]["use_display"]))
+        self.use_display = bool(int(config["bass"]["use_display"]))
         self.config = config
 
     def detect_data(self):
