@@ -15,6 +15,12 @@ sudo pip3 install pymavlink
 
 а так же переменная среды MAVLINK20=1
 
+## Для установки используем (обязательно!):
+```shell
+git lfs install
+git clone https://github.com/Hexerpowers/bass
+```
+
 ## Для запуска используем
 ```shell
 python3 run.py
