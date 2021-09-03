@@ -11,6 +11,9 @@ sudo apt upgrade
 sudo apt install libopencv-dev
 sudo pip3 install opencv-python
 sudo pip3 install pymavlink
+sudo pip3 install aiortc
+sudo pip3 install uvloop
+sudo pip3 install -U vidgear[asyncio]
 sudo curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
 ```
 

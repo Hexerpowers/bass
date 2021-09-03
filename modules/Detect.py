@@ -1,7 +1,10 @@
+import asyncio
 import sys
 
 import cv2 as cv
 import time
+
+from vidgear.gears.asyncio.helper import reducer
 
 from .MVL import MVL
 from .WebcamVideoStream import WebcamVideoStream
@@ -65,7 +68,7 @@ class Detect:
         self.use_display = bool(int(config["bass"]["use_display"]))
         self.config = config
 
-    def detect_data(self):
+    async def detect_data(self):
         while self.started:
             while self.enabled:
                 while True:
@@ -85,20 +88,23 @@ class Detect:
                             # TODO: перенести определение расстояния и угла из теста
                             if self.use_network:
                                 self.network.send_mvl(10, 10)
-                            if self.use_display:
-                                label = '%.2f' % confidence
-                                label = '%s: %s' % (self.class_names[classId], label)
-                                label_size, base_line = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-                                left, top, width, height = box
-                                top = max(top, label_size[1])
+                            label = '%.2f' % confidence
+                            label = '%s: %s' % (self.class_names[classId], label)
+                            label_size, base_line = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+                            left, top, width, height = box
+                            top = max(top, label_size[1])
 
-                                cv.rectangle(frame, box, color=(0, 255, 0), thickness=3)
-                                cv.rectangle(frame, (left, top - label_size[1]), (left + label_size[0], top + base_line),
-                                             (255, 255, 255),
-                                             cv.FILLED)
-                                cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+                            cv.rectangle(frame, box, color=(0, 255, 0), thickness=3)
+                            cv.rectangle(frame, (left, top - label_size[1]),
+                                         (left + label_size[0], top + base_line),
+                                         (255, 255, 255),
+                                         cv.FILLED)
+                            cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
+                    frame = cv.resize(frame, (1200, 700))
+                    frame = await reducer(frame, percentage=30)
+                    encoded_image = cv.imencode(".jpg", frame)[1].tobytes()
+                    yield b"--frame\r\nContent-Type:video/jpeg2000\r\n\r\n" + encoded_image + b"\r\n"
                     if self.use_display:
-                        frame = cv.resize(frame, (1200, 700))
                         cv.imshow('Detect', frame)
 
                     if self.use_timecodes:
