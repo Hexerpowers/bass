@@ -1,19 +1,18 @@
 # coding: utf-8
-import asyncio
 import sys
 import codecs
+from datetime import datetime
 
 import cv2 as cv
 import time
 
-from vidgear.gears.asyncio.helper import reducer
 import uvicorn
 from vidgear.gears.asyncio import WebGear
 
 from .MVL import MVL
+from .MetaTransfer import MetaTransfer
 from .WebcamVideoStream import WebcamVideoStream
 
-from threading import Thread
 import os.path
 
 
@@ -73,6 +72,7 @@ class Detect:
         self.vid_port = int(config["vidgear"]["port"])
         self.config = config
         self.web = None
+        self.mt = MetaTransfer(config["bass"]["source"]).start()
 
     async def detect_data(self):
         while self.started:
@@ -93,6 +93,7 @@ class Detect:
                     classes, confidences, boxes = self.net.detect(frame, confThreshold=0.2, nmsThreshold=0.2)  # 0.4 0.4
 
                     if len(boxes) > 0:
+                        self.mt.send('{class:"jacket", time:"'+str(datetime.now().time())+'"}')
                         for classId, confidence, box in zip(classes.flatten(), confidences.flatten(), boxes):
                             # TODO: перенести определение расстояния и угла из теста
                             if self.use_network:
@@ -139,3 +140,4 @@ class Detect:
 
     def disable(self):
         self.enabled = False
+
