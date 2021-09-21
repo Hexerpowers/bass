@@ -1,8 +1,8 @@
 import cv2
 
-from modules.WebcamVideoStream import WebcamVideoStream
+from modules.StreamReader import StreamReader
 
-vs = WebcamVideoStream('../test/01.mp4').start()
+vs = StreamReader('../test/01.mp4').start()
 print(vs.grabbed)
 while True:
     print(vs.grabbed)

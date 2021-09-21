@@ -2,14 +2,15 @@ from threading import Thread, Lock
 import cv2
 
 
-class WebcamVideoStream:
-    def __init__(self, src=0, width=320, height=240):
+class StreamReader:
+    def __init__(self, config):
         self.thread = Thread(target=self.update, daemon=True, args=())
-        self.stream = cv2.VideoCapture(src)
-        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        self.stream = cv2.VideoCapture(config["bass"]["source"])
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         (self.grabbed, self.frame) = self.stream.read()
         self.started = False
+        self.mode = config["bass"]["mode"]
         self.read_lock = Lock()
 
     def start(self):
@@ -24,7 +25,12 @@ class WebcamVideoStream:
         while self.started:
             (grabbed, frame) = self.stream.read()
             self.read_lock.acquire()
-            self.grabbed, self.frame = grabbed, frame
+            if grabbed:
+                self.grabbed, self.frame = grabbed, frame
+            if not grabbed and self.mode == 'video':
+                self.stream.set(1, 0)
+                if grabbed:
+                    self.grabbed, self.frame = grabbed, frame
             self.read_lock.release()
 
     def read(self):
@@ -37,5 +43,5 @@ class WebcamVideoStream:
         self.started = False
         self.thread.join()
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self):
         self.stream.release()

@@ -6,7 +6,7 @@ from pymavlink import mavutil
 # TODO: добавить обработку отключения со стороны хоста
 
 
-class MVL:
+class Mavlink20:
     def __init__(self, config):
         self.thread = Thread(target=self.listen_mvl, daemon=True, args=())
         the_connection = mavutil.mavlink_connection(config["mavlink"]["protocol"] + ":" +
@@ -30,5 +30,6 @@ class MVL:
             print("There is an instance of Network running already")
             return None
         self.started = True
+        print('[bass] Mavlink ready;')
         self.thread.start()
         return self
