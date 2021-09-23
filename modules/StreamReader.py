@@ -1,3 +1,4 @@
+import time
 from threading import Thread, Lock
 import cv2
 
@@ -11,7 +12,8 @@ class StreamReader:
         (self.grabbed, self.frame) = self.stream.read()
         self.started = False
         self.mode = config["bass"]["mode"]
-        self.read_lock = Lock()
+        #self.read_lock = Lock()
+        #self.time = time.time()
 
     def start(self):
         if self.started:
@@ -24,19 +26,23 @@ class StreamReader:
     def update(self):
         while self.started:
             (grabbed, frame) = self.stream.read()
-            self.read_lock.acquire()
+            #self.read_lock.acquire()
             if grabbed:
+                #print(str(time.time()-self.time))
                 self.grabbed, self.frame = grabbed, frame
             if not grabbed and self.mode == 'video':
                 self.stream.set(1, 0)
                 if grabbed:
                     self.grabbed, self.frame = grabbed, frame
-            self.read_lock.release()
+            #self.read_lock.release()
+            #self.time=time.time()
+            #cv2.imshow("ass",self.frame)
 
     def read(self):
-        self.read_lock.acquire()
+        #self.read_lock.acquire()
         frame = self.frame.copy()
-        self.read_lock.release()
+        #self.read_lock.release()
+        #print("frame out: "+str(time.time()-self.time))
         return frame
 
     def stop(self):

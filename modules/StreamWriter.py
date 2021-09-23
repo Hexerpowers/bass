@@ -9,7 +9,7 @@ class StreamWriter:
         self.config = service.config
         options = {
             "frame_size_reduction": 20,
-            "enable_live_broadcast": True
+            #"enable_live_broadcast": True
         }
         self.vid_host = self.config["vidgear"]["host"]
         self.vid_port = int(self.config["vidgear"]["port"])

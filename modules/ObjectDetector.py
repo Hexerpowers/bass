@@ -119,6 +119,8 @@ class ObjectDetector(VideoStreamTrack):
         if self.use_display:
             cv.imshow('Detect', frame)
 
+        #time.sleep(0.5)
+
         if self.use_timecodes:
             self.service.print_log("Bass", 2, "--- took %s seconds ---" % (time.time() - start_time))
         pts, time_base = await self.next_timestamp()
