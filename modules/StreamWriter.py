@@ -14,8 +14,12 @@ class StreamWriter:
         self.vid_host = self.config["vidgear"]["host"]
         self.vid_port = int(self.config["vidgear"]["port"])
         self.web = WebGear_RTC(logging=False, **options)
-        self.web.config["server"] = ObjectDetector(self.config, service)
+        #self.web.config["server"] = ObjectDetector(self.config, service)
+        self.service=service
+
 
     def start(self):
-        uvicorn.run(self.web(), host=self.vid_host, port=self.vid_port, log_level="warning")
-        self.web.shutdown()
+        od = ObjectDetector(self.config, self.service)
+        od.recv()
+        #uvicorn.run(self.web(), host=self.vid_host, port=self.vid_port, log_level="debug")
+        #self.web.shutdown()

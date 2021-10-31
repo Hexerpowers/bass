@@ -13,7 +13,7 @@ class CourseHandler:
 
         self.thread = Thread(target=self.reconf, daemon=True, args=())
         self.started = False
-        self.read_lock = Lock()
+        ##self.read_lock = Lock()
 
     def start(self):
         if self.started:
@@ -28,10 +28,10 @@ class CourseHandler:
         self.thread.join()
 
     def calc(self, box):
-        self.read_lock.acquire()
+        #self.read_lock.acquire()
         conf = self.confidence
-        self.read_lock.release()
-        if conf > 20:
+        ##self.read_lock.release()
+        if conf > 0:
             left, top, width, height = box
             dist = (6 * 500 * 1920) / (width * 2.3)
             m_height = int(top + height / 2)
@@ -39,9 +39,9 @@ class CourseHandler:
             m_tg = m_line / m_height
             m_atg = math.atan(m_tg)
             m_angle = math.degrees(m_atg)
-        self.read_lock.acquire()
+       # self.read_lock.acquire()
         self.confidence += 1
-        self.read_lock.release()
+     ##   self.read_lock.release()
         if conf > 20:
             return (dist, m_angle)
         else:
@@ -49,8 +49,8 @@ class CourseHandler:
 
     def reconf(self):
         while self.started:
-            self.read_lock.acquire()
+            #self.read_lock.acquire()
             if self.confidence > 0:
                 self.confidence -= 1
-            self.read_lock.release()
+            #self.read_lock.release()
             time.sleep(0.1)
